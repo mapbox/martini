@@ -6,6 +6,8 @@ MARTIN stands for **Mapbox's Awesome Right-Triangulated Irregular Networks**.
 
 It's an experimental JavaScript library for **real-time terrain mesh generation** from height data. Given a (2<sup>k</sup>+1) × (2<sup>k</sup>+1) terrain grid, it generates a hierarchy of triangular meshes of varying level of detail in milliseconds. _A work in progress._
 
+See the algorithm in action and read more about how it works in [this interactive Observable notebook](https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh).
+
 Based on the paper ["Right-Triangulated Irregular Networks" by Will Evans et. al. (1997)](https://www.cs.ubc.ca/~will/papers/rtin.pdf).
 
 ![MARTIN terrain demo](martin.gif)
