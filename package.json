@@ -1,0 +1,30 @@
+{
+  "name": "@mapbox/martin",
+  "version": "0.1.0",
+  "description": "A JavaScript library for real-time terrain mesh generation",
+  "main": "index.js",
+  "scripts": {
+    "test": "eslint *.js"
+  },
+  "keywords": [
+    "terrain",
+    "rtin",
+    "mesh",
+    "3d",
+    "webgl"
+  ],
+  "author": "Vladimir Agafonkin",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^6.1.0",
+    "eslint-config-mourner": "^3.0.0",
+    "esm": "^3.2.25",
+    "pngjs": "^3.4.0"
+  },
+  "eslintConfig": {
+    "extends": "mourner",
+    "rules": {
+      "no-use-before-define": 0
+    }
+  }
+}
