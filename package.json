@@ -4,7 +4,9 @@
   "description": "A JavaScript library for real-time terrain mesh generation",
   "main": "index.js",
   "scripts": {
-    "test": "eslint *.js test"
+    "pretest": "eslint *.js test",
+    "test": "node -r esm test/test.js",
+    "bench": "node -r esm bench.js"
   },
   "keywords": [
     "terrain",
