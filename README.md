@@ -28,5 +28,5 @@ const mesh = tile.getMesh(10);
 ## Install
 
 ```bash
-npm install @mapbox/martin
+npm install @mapbox/martini
 ```

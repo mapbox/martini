@@ -6,7 +6,7 @@
   "unpkg": "martini.min.js",
   "module": "index.js",
   "scripts": {
-    "pretest": "eslint *.js test",
+    "pretest": "eslint index.js bench.js test",
     "test": "node -r esm test/test.js",
     "bench": "node -r esm bench.js",
     "build": "rollup -c",

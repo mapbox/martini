@@ -10,7 +10,7 @@ const terrain = mapboxTerrainToGrid(fuji);
 
 test('generates a mesh', (t) => {
     const martini = new Martini(fuji.width + 1);
-    const tile = martin.createTile(terrain);
+    const tile = martini.createTile(terrain);
     const mesh = tile.getMesh(500);
 
     t.same([
