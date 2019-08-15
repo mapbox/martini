@@ -62,7 +62,7 @@ class Tile {
     }
 
     update() {
-        const {numTriangles, numParentTriangles, coords, gridSize} = this.martin;
+        const {numTriangles, numParentTriangles, coords, gridSize: size} = this.martin;
         const {terrain, errors} = this;
 
         // iterate over all possible triangles, starting from the smallest level
@@ -78,64 +78,84 @@ class Tile {
             const cy = my + ax - mx;
 
             // calculate error in the middle of the long edge of the triangle
-            const interpolatedHeight = (terrain[ay * gridSize + ax] + terrain[by * gridSize + bx]) / 2;
-            const middleIndex = my * gridSize + mx;
+            const interpolatedHeight = (terrain[ay * size + ax] + terrain[by * size + bx]) / 2;
+            const middleIndex = my * size + mx;
             const middleError = Math.abs(interpolatedHeight - terrain[middleIndex]);
 
             errors[middleIndex] = Math.max(errors[middleIndex], middleError);
 
             if (i < numParentTriangles) { // bigger triangles; accumulate error with children
-                const leftChildIndex = ((ay + cy) >> 1) * gridSize + ((ax + cx) >> 1);
-                const rightChildIndex = ((by + cy) >> 1) * gridSize + ((bx + cx) >> 1);
+                const leftChildIndex = ((ay + cy) >> 1) * size + ((ax + cx) >> 1);
+                const rightChildIndex = ((by + cy) >> 1) * size + ((bx + cx) >> 1);
                 errors[middleIndex] = Math.max(errors[middleIndex], errors[leftChildIndex], errors[rightChildIndex]);
             }
         }
     }
 
     getMesh(maxError = 0) {
-        const {gridSize, indices} = this.martin;
+        const {gridSize: size, indices} = this.martin;
         const {errors} = this;
-        const vertices = [];
-        const triangles = [];
         let numVertices = 0;
+        let numTriangles = 0;
+        const max = size - 1;
 
-        // we use an index grid to keep track of vertices that were already used to avoid duplication
+        // use an index grid to keep track of vertices that were already used to avoid duplication
         indices.fill(0);
+
+        // retrieve mesh in two stages that both traverse the error map:
+        // - countElements: find used vertices (and assign each an index), and count triangles (for minimum allocation)
+        // - processTriangle: fill the allocated vertices & triangles typed arrays
+
+        function countElements(ax, ay, bx, by, cx, cy) {
+            const mx = (ax + bx) >> 1;
+            const my = (ay + by) >> 1;
+
+            if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * size + mx] > maxError) {
+                countElements(cx, cy, ax, ay, mx, my);
+                countElements(bx, by, cx, cy, mx, my);
+            } else {
+                indices[ay * size + ax] = indices[ay * size + ax] || ++numVertices;
+                indices[by * size + bx] = indices[by * size + bx] || ++numVertices;
+                indices[cy * size + cx] = indices[cy * size + cx] || ++numVertices;
+                numTriangles++;
+            }
+        }
+        countElements(0, 0, max, max, max, 0);
+        countElements(max, max, 0, 0, 0, max);
+
+        const vertices = new Uint16Array(numVertices * 2);
+        const triangles = new Uint16Array(numTriangles * 3);
+        let triIndex = 0;
 
         function processTriangle(ax, ay, bx, by, cx, cy) {
             const mx = (ax + bx) >> 1;
             const my = (ay + by) >> 1;
 
-            if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * gridSize + mx] > maxError) {
+            if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * size + mx] > maxError) {
                 // triangle doesn't approximate the surface well enough; drill down further
                 processTriangle(cx, cy, ax, ay, mx, my);
                 processTriangle(bx, by, cx, cy, mx, my);
 
             } else {
                 // add a triangle
-                let a = indices[ay * gridSize + ax] - 1;
-                let b = indices[by * gridSize + bx] - 1;
-                let c = indices[cy * gridSize + cx] - 1;
-                if (a === -1) {
-                    a = numVertices++;
-                    indices[ay * gridSize + ax] = numVertices;
-                    vertices.push(ax, ay);
-                }
-                if (b === -1) {
-                    b = numVertices++;
-                    indices[by * gridSize + bx] = numVertices;
-                    vertices.push(bx, by);
-                }
-                if (c === -1) {
-                    c = numVertices++;
-                    indices[cy * gridSize + cx] = numVertices;
-                    vertices.push(cx, cy);
-                }
-                triangles.push(a, b, c);
+                const a = indices[ay * size + ax] - 1;
+                const b = indices[by * size + bx] - 1;
+                const c = indices[cy * size + cx] - 1;
+
+                vertices[2 * a] = ax;
+                vertices[2 * a + 1] = ay;
+
+                vertices[2 * b] = bx;
+                vertices[2 * b + 1] = by;
+
+                vertices[2 * c] = cx;
+                vertices[2 * c + 1] = cy;
+
+                triangles[triIndex++] = a;
+                triangles[triIndex++] = b;
+                triangles[triIndex++] = c;
             }
         }
-
-        const max = gridSize - 1;
         processTriangle(0, 0, max, max, max, 0);
         processTriangle(max, max, 0, 0, 0, max);
 
