@@ -24,3 +24,9 @@ const tile = martin.createTile(terrain);
 // get a mesh (vertices and triangles indices) for a 10m error
 const mesh = tile.getMesh(10);
 ```
+
+## Install
+
+```bash
+npm install @mapbox/martin
+```
