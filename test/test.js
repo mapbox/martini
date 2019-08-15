@@ -2,14 +2,14 @@
 import fs from 'fs';
 import {PNG} from 'pngjs';
 import test from 'tape';
-import Martin from '../index.js';
+import Martini from '../index.js';
 import {mapboxTerrainToGrid} from './util.js';
 
 const fuji = PNG.sync.read(fs.readFileSync('./test/fixtures/fuji.png'));
 const terrain = mapboxTerrainToGrid(fuji);
 
 test('generates a mesh', (t) => {
-    const martin = new Martin(fuji.width + 1);
+    const martini = new Martini(fuji.width + 1);
     const tile = martin.createTile(terrain);
     const mesh = tile.getMesh(500);
 

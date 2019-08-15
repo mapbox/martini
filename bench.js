@@ -1,7 +1,7 @@
 
 import fs from 'fs';
 import {PNG} from 'pngjs';
-import Martin from './index.js';
+import Martini from './index.js';
 import {mapboxTerrainToGrid} from './test/util.js';
 
 const png = PNG.sync.read(fs.readFileSync('./test/fixtures/fuji.png'));
@@ -9,11 +9,11 @@ const png = PNG.sync.read(fs.readFileSync('./test/fixtures/fuji.png'));
 const terrain = mapboxTerrainToGrid(png);
 
 console.time('init tileset');
-const martin = new Martin(png.width + 1);
+const martini = new Martini(png.width + 1);
 console.timeEnd('init tileset');
 
 console.time('create tile');
-const tile = martin.createTile(terrain);
+const tile = martini.createTile(terrain);
 console.timeEnd('create tile');
 
 console.time('mesh');

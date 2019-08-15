@@ -3,7 +3,7 @@ import {terser} from 'rollup-plugin-terser';
 const config = (file, plugins = []) => ({
     input: 'index.js',
     output: {
-        name: 'Martin',
+        name: 'Martini',
         format: 'umd',
         indent: false,
         file
