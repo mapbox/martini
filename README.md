@@ -16,10 +16,10 @@ Based on the paper ["Right-Triangulated Irregular Networks" by Will Evans et. al
 
 ```js
 // set up mesh generator for a certain 2^k+1 grid size
-const martin = new Martini(257);
+const martini = new Martini(257);
 
 // generate RTIN hierarchy from terrain data (an array of size^2 length)
-const tile = martin.createTile(terrain);
+const tile = martini.createTile(terrain);
 
 // get a mesh (vertices and triangles indices) for a 10m error
 const mesh = tile.getMesh(10);

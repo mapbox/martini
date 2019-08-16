@@ -1,5 +1,5 @@
 
-export default class Martin {
+export default class Martini {
     constructor(gridSize = 257) {
         this.gridSize = gridSize;
         const tileSize = gridSize - 1;
@@ -50,19 +50,19 @@ export default class Martin {
 }
 
 class Tile {
-    constructor(terrain, martin) {
-        const size = martin.gridSize;
+    constructor(terrain, martini) {
+        const size = martini.gridSize;
         if (terrain.length !== size * size) throw new Error(
             `Expected terrain data of length ${size * size} (${size} x ${size}), got ${terrain.length}.`);
 
         this.terrain = terrain;
-        this.martin = martin;
+        this.martini = martini;
         this.errors = new Float32Array(terrain.length);
         this.update();
     }
 
     update() {
-        const {numTriangles, numParentTriangles, coords, gridSize: size} = this.martin;
+        const {numTriangles, numParentTriangles, coords, gridSize: size} = this.martini;
         const {terrain, errors} = this;
 
         // iterate over all possible triangles, starting from the smallest level
@@ -93,7 +93,7 @@ class Tile {
     }
 
     getMesh(maxError = 0) {
-        const {gridSize: size, indices} = this.martin;
+        const {gridSize: size, indices} = this.martini;
         const {errors} = this;
         let numVertices = 0;
         let numTriangles = 0;
