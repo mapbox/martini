@@ -1,6 +1,6 @@
 {
   "name": "@mapbox/martini",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A JavaScript library for real-time terrain mesh generation",
   "main": "martini.js",
   "unpkg": "martini.min.js",
