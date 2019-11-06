@@ -9,7 +9,7 @@ export default class Martini {
         this.numTriangles = tileSize * tileSize * 2 - 2;
         this.numParentTriangles = this.numTriangles - tileSize * tileSize;
 
-        this.indices = new Uint16Array(this.gridSize * this.gridSize);
+        this.indices = new Uint32Array(this.gridSize * this.gridSize);
 
         // coordinates for all possible triangles in an RTIN tile
         this.coords = new Uint16Array(this.numTriangles * 4);
@@ -124,7 +124,7 @@ class Tile {
         countElements(max, max, 0, 0, 0, max);
 
         const vertices = new Uint16Array(numVertices * 2);
-        const triangles = new Uint16Array(numTriangles * 3);
+        const triangles = new Uint32Array(numTriangles * 3);
         let triIndex = 0;
 
         function processTriangle(ax, ay, bx, by, cx, cy) {
