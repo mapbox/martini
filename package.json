@@ -32,8 +32,8 @@
   },
   "files": [
     "index.js",
-    "martin.js",
-    "martin.min.js"
+    "martini.js",
+    "martini.min.js"
   ],
   "eslintConfig": {
     "extends": "mourner",

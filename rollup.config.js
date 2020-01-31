@@ -12,6 +12,6 @@ const config = (file, plugins = []) => ({
 });
 
 export default [
-    config('martin.js'),
-    config('martin.min.js', [terser()])
+    config('martini.js'),
+    config('martini.min.js', [terser()])
 ];
