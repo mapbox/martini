@@ -195,9 +195,8 @@ class Tile {
                 if (indices[aIndex]===0) {   
                     if (ax === 0) 
                         leftSkirtIndices.push(numVertices);
-                    else if (ax === max) {
+                    else if (ax === max)
                         rightSkirtIndices.push(numVertices);
-                    }
                     if (ay === 0)
                         bottomSkirtIndices.push(numVertices);
                     else if (ay === max)
@@ -224,8 +223,7 @@ class Tile {
                         bottomSkirtIndices.push(numVertices);
                     else if (cy === max)
                         topSkirtIndices.push(numVertices);
-                    indices[cIndex] = ++numVertices;
-                    
+                    indices[cIndex] = ++numVertices;                    
                 }
                 numTriangles++;
             }
