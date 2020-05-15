@@ -161,4 +161,179 @@ class Tile {
 
         return {vertices, triangles};
     }
+
+    getMeshWithSkirts(maxError = 0) {
+        const {gridSize: size, indices} = this.martini;
+        const {errors} = this;
+        let numVertices = 0;
+        let numTriangles = 0;
+        const max = size - 1;        
+        let aIndex, bIndex, cIndex = 0;
+        // Skirt indices
+        let leftSkirtIndices = [];
+        let rightSkirtIndices = [];
+        let bottomSkirtIndices = [];
+        let topSkirtIndices = [];
+        // use an index grid to keep track of vertices that were already used to avoid duplication
+        indices.fill(0);
+
+        // retrieve mesh in two stages that both traverse the error map:
+        // - countElements: find used vertices (and assign each an index), and count triangles (for minimum allocation)
+        // - processTriangle: fill the allocated vertices & triangles typed arrays
+        function countElements(ax, ay, bx, by, cx, cy) {
+            const mx = (ax + bx) >> 1;
+            const my = (ay + by) >> 1;
+
+            if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * size + mx] > maxError) {
+                countElements(cx, cy, ax, ay, mx, my);
+                countElements(bx, by, cx, cy, mx, my);
+            } else {
+                aIndex = ay * size + ax;
+                bIndex = by * size + bx;
+                cIndex = cy * size + cx;
+
+                if (indices[aIndex]===0) {   
+                    if (ax === 0) 
+                        leftSkirtIndices.push(numVertices);
+                    else if (ax === max) {
+                        rightSkirtIndices.push(numVertices);
+                    }
+                    if (ay === 0)
+                        bottomSkirtIndices.push(numVertices);
+                    else if (ay === max)
+                        topSkirtIndices.push(numVertices);
+                    indices[aIndex] = ++numVertices;                    
+                }
+                if (indices[bIndex]===0) {     
+                    if (bx === 0) 
+                        leftSkirtIndices.push(numVertices);
+                    else if (bx === max)
+                        rightSkirtIndices.push(numVertices);
+                    if (by === 0)
+                        bottomSkirtIndices.push(numVertices);
+                    else if (by === max)
+                        topSkirtIndices.push(numVertices);
+                    indices[bIndex] = ++numVertices;                    
+                }
+                if (indices[cIndex]===0) {          
+                    if (cx === 0) 
+                        leftSkirtIndices.push(numVertices);
+                    else if (cx === max)
+                        rightSkirtIndices.push(numVertices);
+                    if (cy === 0)
+                        bottomSkirtIndices.push(numVertices);
+                    else if (cy === max)
+                        topSkirtIndices.push(numVertices);
+                    indices[cIndex] = ++numVertices;
+                    
+                }
+                numTriangles++;
+            }
+        }
+        countElements(0, 0, max, max, max, 0);
+        countElements(max, max, 0, 0, 0, max);
+
+        const numTotalVertices = (
+            numVertices
+            + leftSkirtIndices.length 
+            + rightSkirtIndices.length 
+            + bottomSkirtIndices.length 
+            + topSkirtIndices.length) * 2;
+        const numTotalTriangles = (
+            numTriangles
+            + ((leftSkirtIndices.length - 1) * 2) 
+            + ((rightSkirtIndices.length - 1) * 2) 
+            + ((bottomSkirtIndices.length - 1) * 2) 
+            + ((topSkirtIndices.length - 1) * 2)) * 3;
+
+        const vertices = new Uint16Array(numTotalVertices);
+        const triangles = new Uint32Array(numTotalTriangles);
+        
+        let triIndex = 0;
+        function processTriangle(ax, ay, bx, by, cx, cy) {
+            const mx = (ax + bx) >> 1;
+            const my = (ay + by) >> 1;
+
+            if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * size + mx] > maxError) {
+                // triangle doesn't approximate the surface well enough; drill down further
+                processTriangle(cx, cy, ax, ay, mx, my);
+                processTriangle(bx, by, cx, cy, mx, my);
+
+            } else {
+                // add a triangle
+                const a = indices[ay * size + ax] - 1;
+                const b = indices[by * size + bx] - 1;
+                const c = indices[cy * size + cx] - 1;
+
+                vertices[2 * a] = ax;
+                vertices[2 * a + 1] = ay;
+
+                vertices[2 * b] = bx;
+                vertices[2 * b + 1] = by;
+
+                vertices[2 * c] = cx;
+                vertices[2 * c + 1] = cy;                
+                triangles[triIndex++] = a;
+                triangles[triIndex++] = b;
+                triangles[triIndex++] = c;
+            }
+        }
+        processTriangle(0, 0, max, max, max, 0);        
+        processTriangle(max, max, 0, 0, 0, max);        
+
+        // Sort skirt indices to create adjacent triangles
+        leftSkirtIndices.sort( (a, b) => {
+            return vertices[2 * a + 1] - vertices[2 * b + 1];
+        })
+
+        rightSkirtIndices.sort( (a, b) => {
+            // Reverse (b - a) to match triangle winding
+            return vertices[2 * b + 1] - vertices[2 * a + 1];
+        })
+
+        bottomSkirtIndices.sort( (a, b) => {
+            return vertices[2 * b] - vertices[2 * a];
+        })
+
+        topSkirtIndices.sort( (a, b) => {
+            // Reverse (b - a) to match triangle winding
+            return vertices[2 * a] - vertices[2 * b];
+        })
+
+        let skirtIndex = numVertices * 2;
+        let currIndex, nextIndex, currentSkirt, nextSkirt, skirtLength = 0;
+        
+        // Add skirt vertices from index of last mesh vertex
+        function constructSkirt(skirt) {
+            skirtLength = skirt.length;
+            // Loop through indices in groups of two to generate triangles
+            for (var i = 0; i < skirtLength - 1; i++) {
+                currIndex = skirt[i];
+                nextIndex = skirt[i + 1];
+                currentSkirt = skirtIndex/2;
+                nextSkirt = (skirtIndex + 2)/2;
+                vertices[skirtIndex++] = vertices[2 * currIndex];
+                vertices[skirtIndex++] = vertices[2 * currIndex + 1];
+
+                triangles[triIndex++] = currIndex;
+                triangles[triIndex++] = currentSkirt;                      
+                triangles[triIndex++] = nextIndex;                 
+                
+                triangles[triIndex++] = currentSkirt;
+                triangles[triIndex++] = nextSkirt;
+                triangles[triIndex++] = nextIndex;            
+            }
+            // Add vertices of last skirt not added above (i < skirtLength - 1)
+            vertices[skirtIndex++] = vertices[2 * skirt[skirtLength - 1]];
+            vertices[skirtIndex++] = vertices[2 * skirt[skirtLength - 1] + 1];
+        }
+
+        constructSkirt(leftSkirtIndices);
+        constructSkirt(rightSkirtIndices);
+        constructSkirt(bottomSkirtIndices);
+        constructSkirt(topSkirtIndices);
+
+        // Return vertices and triangles and index into vertices array where skirts start
+        return {vertices, triangles, numVerticesWithoutSkirts: numVertices};
+    }
 }
