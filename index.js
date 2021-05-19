@@ -101,7 +101,7 @@ class Tile {
 
         // The maxLength parameter will cause triangles to be generated until the legs are below this length
         // It is meant to support cases where a certain mesh density is required to do spherical math on digital globes
-        const maxScale = maxLength || size
+        const maxScale = maxLength || size;
 
         // use an index grid to keep track of vertices that were already used to avoid duplication
         indices.fill(0);
@@ -114,7 +114,7 @@ class Tile {
             const mx = (ax + bx) >> 1;
             const my = (ay + by) >> 1;
 
-            const legLength = Math.abs(ax - cx) + Math.abs(ay - cy)
+            const legLength = Math.abs(ax - cx) + Math.abs(ay - cy);
             if ((legLength > 1 && errors[my * size + mx] > maxError) || legLength > maxScale) {
                 countElements(cx, cy, ax, ay, mx, my);
                 countElements(bx, by, cx, cy, mx, my);
