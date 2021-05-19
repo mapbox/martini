@@ -137,7 +137,7 @@ class Tile {
             const my = (ay + by) >> 1;
 
             const legLength = Math.abs(ax - cx) + Math.abs(ay - cy);
-            if (legLength > 1 && errors[my * size + mx] > maxError) || legLength > maxScale) {
+            if ((legLength > 1 && errors[my * size + mx] > maxError) || legLength > maxScale) {
                 // triangle doesn't approximate the surface well enough; drill down further
                 processTriangle(cx, cy, ax, ay, mx, my);
                 processTriangle(bx, by, cx, cy, mx, my);
