@@ -92,12 +92,16 @@ class Tile {
         }
     }
 
-    getMesh(maxError = 0) {
+    getMesh(maxError = 0, maxLength = null) {
         const {gridSize: size, indices} = this.martini;
         const {errors} = this;
         let numVertices = 0;
         let numTriangles = 0;
         const max = size - 1;
+
+        // The maxLength parameter will cause triangles to be generated until the legs are below this length
+        // It is meant to support cases where a certain mesh density is required to do spherical math on digital globes
+        const maxScale = maxLength || size;
 
         // use an index grid to keep track of vertices that were already used to avoid duplication
         indices.fill(0);
@@ -110,7 +114,8 @@ class Tile {
             const mx = (ax + bx) >> 1;
             const my = (ay + by) >> 1;
 
-            if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * size + mx] > maxError) {
+            const legLength = Math.abs(ax - cx) + Math.abs(ay - cy);
+            if ((legLength > 1 && errors[my * size + mx] > maxError) || legLength > maxScale) {
                 countElements(cx, cy, ax, ay, mx, my);
                 countElements(bx, by, cx, cy, mx, my);
             } else {
@@ -131,7 +136,8 @@ class Tile {
             const mx = (ax + bx) >> 1;
             const my = (ay + by) >> 1;
 
-            if (Math.abs(ax - cx) + Math.abs(ay - cy) > 1 && errors[my * size + mx] > maxError) {
+            const legLength = Math.abs(ax - cx) + Math.abs(ay - cy);
+            if ((legLength > 1 && errors[my * size + mx] > maxError) || legLength > maxScale) {
                 // triangle doesn't approximate the surface well enough; drill down further
                 processTriangle(cx, cy, ax, ay, mx, my);
                 processTriangle(bx, by, cx, cy, mx, my);
