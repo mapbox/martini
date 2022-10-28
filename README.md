@@ -1,6 +1,6 @@
 # MARTINI
 
-[![Build Status](https://travis-ci.com/mapbox/martini.svg?branch=master)](https://travis-ci.com/mapbox/martini) [![Simply Awesome](https://img.shields.io/badge/simply-awesome-brightgreen.svg)](https://github.com/mourner/projects)
+[![Build Status](https://travis-ci.com/mapbox/martini.svg?branch=main)](https://travis-ci.com/mapbox/martini) [![Simply Awesome](https://img.shields.io/badge/simply-awesome-brightgreen.svg)](https://github.com/mourner/projects)
 
 MARTINI stands for **Mapbox's Awesome Right-Triangulated Irregular Networks, Improved**.
 
