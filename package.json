@@ -5,6 +5,7 @@
   "main": "martini.js",
   "unpkg": "martini.min.js",
   "module": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "pretest": "eslint index.js bench.js test",
     "test": "node -r esm test/test.js",
