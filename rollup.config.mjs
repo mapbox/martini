@@ -1,4 +1,4 @@
-import {terser} from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 
 const config = (file, plugins = []) => ({
     input: 'index.js',
