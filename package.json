@@ -1,6 +1,6 @@
 {
   "name": "@mapbox/martini",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "A JavaScript library for real-time terrain mesh generation",
   "main": "index.js",
@@ -35,5 +35,8 @@
     "rules": {
       "no-use-before-define": 0
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
